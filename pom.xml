@@ -18,7 +18,7 @@
 	<description>projeto base</description>
 
 	<properties>
-		<java.version>11</java.version>
+		<java.version>8</java.version>
 		<node.version>v12.18.3</node.version>
 		<yarn.version>v1.22.10</yarn.version>
 		<frontend.version>1.9.1</frontend.version>
