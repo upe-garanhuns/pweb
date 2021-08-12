@@ -1,0 +1,1 @@
+web: java -jar target/controle-acesso-1.0.jar
