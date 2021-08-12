@@ -3,7 +3,6 @@ package br.upe.pweb.controleacesso.controle;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,21 +59,16 @@ public class UsuarioController {
             linkTo(methodOn(UsuarioController.class).procurar(usuario.getId())).withSelfRel())))
         .collect(Collectors.toList());
 
-    // usuarios.forEach(usuario -> usuario
-    // .add(linkTo(methodOn(UsuarioController.class).procurar(usuario.getId())).withSelfRel()));
-
     return CollectionModel.of(usuarios,
         linkTo(methodOn(UsuarioController.class).listar()).withSelfRel());
   }
 
   @GetMapping("/usuario/{id}")
   public EntityModel<Usuario> procurar(@PathVariable Long id) {
-    Optional<Usuario> usuario = servico.procurar(id);
-
-    usuario.get()
+    Usuario usuario = servico.procurar(id)
         .add(linkTo(methodOn(UsuarioController.class).listar()).withRel("Lista de Usuarios"));
 
-    return EntityModel.of(usuario.get());
+    return EntityModel.of(usuario);
   }
 
 }

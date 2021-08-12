@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar target/controle-acesso-1.0.jar
+web: java -Dserver.port=$PORT -jar target/controle-acesso-1.0.war

@@ -5,7 +5,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import io.swagger.annotations.ApiOperation;
 
 public interface CrudController<T extends Entidade<T>, ID> {
 
@@ -25,21 +24,26 @@ public interface CrudController<T extends Entidade<T>, ID> {
 
   @PostMapping("/{modelo}")
   default public EntityModel<T> incluir(@Valid @RequestBody T entidade,
-      @RequestHeader @GenericController String modelo) {
+      @PathVariable String modelo) {
+
     T salvo = getService().incluir(entidade);
 
-    return EntityModel.of(salvo.add(linkTo(methodOn(this.getClass()).listar(modelo))
+    String tratado = modelo + "s";
+
+    return EntityModel.of(salvo.add(linkTo(methodOn(this.getClass()).listar(tratado))
         .withRel("Lista de " + StringUtils.capitalize(this.getTipo()))));
   }
 
 
   @PutMapping("/{modelo}/{id}")
   default public EntityModel<T> alterar(@Valid @RequestBody T entidade,
-      @RequestHeader @GenericController String modelo) {
+      @PathVariable String modelo) {
 
     T alterado = getService().alterar(entidade);
 
-    return EntityModel.of(alterado.add(linkTo(methodOn(this.getClass()).listar(modelo))
+    String tratado = modelo + "s";
+
+    return EntityModel.of(alterado.add(linkTo(methodOn(this.getClass()).listar(tratado))
         .withRel("Lista de " + StringUtils.capitalize(this.getTipo()))));
   }
 
@@ -48,28 +52,30 @@ public interface CrudController<T extends Entidade<T>, ID> {
     getService().excluir(id);
   }
 
-  @SuppressWarnings("unchecked")
-  @GetMapping("/{modelo}s")
-  default public CollectionModel<EntityModel<T>> listar(
-      @RequestHeader @GenericController String modelo) {
+  @GetMapping("/{modelos}")
+  @ApiOperation(value = "Retorna uma lista de ...")
+  default public CollectionModel<EntityModel<T>> listar(@PathVariable String modelos) {
 
-    final List<EntityModel<T>> usuarios = ((List<T>) getService().listar()).stream()
-        .map(usuario -> EntityModel.of(usuario.add(
-            linkTo(methodOn(this.getClass()).procurar(usuario.getId(), modelo)).withSelfRel())))
+    String tratado = modelos.substring(0, modelos.length() - 1);
+
+    final List<EntityModel<T>> entidades = ((List<T>) getService().listar()).stream()
+        .map(usuario -> EntityModel.of(
+            usuario.add(linkTo(methodOn(this.getClass()).procurar((Long) usuario.getId(), tratado))
+                .withSelfRel())))
         .collect(Collectors.toList());
 
-    return CollectionModel.of(usuarios);
+    return CollectionModel.of(entidades);
   }
 
+  @SuppressWarnings("unchecked")
   @GetMapping("/{modelo}/{id}")
-  default public EntityModel<T> procurar(@PathVariable Long id,
-      @RequestHeader @GenericController String modelo) {
-    Optional<T> usuario = getService().procurar((ID) id);
+  default public EntityModel<T> procurar(@PathVariable Long id, @PathVariable String modelo) {
+    String tratado = modelo + "s";
 
-    usuario.get().add(
-        linkTo(methodOn(this.getClass()).listar(modelo)).withRel("Lista de " + this.getTipo()));
+    T usuario = this.getService().procurar((ID) id);
 
-    return EntityModel.of(usuario.get());
+    return EntityModel.of(usuario.add(
+        linkTo(methodOn(this.getClass()).listar(tratado)).withRel("Lista de " + this.getTipo())));
   }
 
   @SuppressWarnings("rawtypes")
