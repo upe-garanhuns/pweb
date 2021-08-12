@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @SpringBootApplication
-@ServletComponentScan("br.upe.pweb.base")
+@ServletComponentScan("br.upe.pweb")
 public class ControleAcessoApplication {
 
   public static void main(String[] args) {

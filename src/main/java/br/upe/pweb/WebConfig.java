@@ -1,8 +1,9 @@
 package br.upe.pweb;
 
-import static springfox.documentation.builders.PathSelectors.regex;
 import java.util.ArrayList;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -13,22 +14,36 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class WebConfig {
+public class WebConfig extends WebMvcConfigurationSupport {
+
+  private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {"classpath:/META-INF/resources/",
+      "classpath:/resources/", "classpath:/static/", "classpath:/public/"};
 
   public Docket controleacessoAPI() {
     return new Docket(DocumentationType.SWAGGER_2).select()
-        .apis(RequestHandlerSelectors.basePackage("br.upe.pweb")).paths(regex("/**api/*")).build()
-        .apiInfo(metaInfo());
+        .apis(RequestHandlerSelectors.basePackage("br.upe.pweb")).build().apiInfo(metaInfo());
   }
 
   @SuppressWarnings("rawtypes")
   private ApiInfo metaInfo() {
 
     ApiInfo apiInfo = new ApiInfo("Controle Acesso API REST", "API REST de controle de acesso.",
-        "1.0", "Terms of Service", new Contact("Helaine Barreiros", "http://www.upe.br/garanhuns", "helaine.lins@upe.br"),
+        "1.0", "Terms of Service",
+        new Contact("Helaine Barreiros", "http://www.upe.br/garanhuns", "helaine.lins@upe.br"),
         "Apache License Version 2.0", "https://www.apache.org/license.html",
         new ArrayList<VendorExtension>());
 
     return apiInfo;
+  }
+
+  @Override
+  protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/**").addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
+
+    registry.addResourceHandler("swagger-ui.html")
+        .addResourceLocations("classpath:/META-INF/resources/");
+
+    registry.addResourceHandler("/webjars/**")
+        .addResourceLocations("classpath:/META-INF/resources/webjars/");
   }
 }
