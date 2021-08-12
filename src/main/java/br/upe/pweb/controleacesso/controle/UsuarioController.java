@@ -30,7 +30,7 @@ public class UsuarioController {
 
   @PostMapping("/usuario")
   public EntityModel<Usuario> incluir(@Valid @RequestBody Usuario usuario) {
-    log.info("Solicitada criação de usuário: {}", usuario);
+    log.info("Solicitada criação de usuário:", usuario);
 
     Usuario salvo = servico.incluir(usuario);
 
